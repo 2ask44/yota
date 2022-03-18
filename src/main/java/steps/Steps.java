@@ -8,6 +8,8 @@ import service.Specification;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
@@ -71,8 +73,8 @@ public class Steps {
     }
 
 
-    @Step("Создание нового Кастомера ")
-    public String postCustomer(String token, List<Pojo> phone) {
+  /*  @Step("Создание нового Кастомера ")
+    public String postCustomer(String token) {
         for (int i = 0; i < phone.size(); i++) {
             Response response = given()
                     .spec(Specification.REQ_SPEC)
@@ -88,7 +90,7 @@ public class Steps {
             }
         }
         return null;
-    }
+    }*/
 
 /*
     @Step("Поиск по Кастомера ID")
@@ -121,31 +123,20 @@ public class Steps {
 */
 
     @Step
-    public List<Pojo> retry() {
-        Response response = getEmptyPhone(token);
-        int statusCode = response.statusCode();
+    public List<String> retry() {
+        AtomicReference<List<String>> listPhone = new AtomicReference<>();
         await("Подождите пока массив будет не пустой").atMost(500, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    if (statusCode != 200) {
-                        //isResult = false;
-                        retry();
-                        return true;
+                    Response response = getEmptyPhone(token);
+                    boolean success = response.statusCode() == 200 && response.jsonPath().getList("phones").size() > 0;
+                    if (success) {
+                        listPhone.set(response.body().jsonPath().getList("phones", Pojo.class)
+                                .stream().map(p -> Long.toString(p.getPhone())).collect(Collectors.toList()));
                     }
-                    Integer phonesCount = response.jsonPath().getList("phones").size();
-                    if (phonesCount == 0) {
-                        //isResult.set(false);
-                        retry();
-                        return true;
-                    }
-                    return true;
+                    return success;
                 });
-        List<Pojo> listPhone = response.jsonPath().getList("phones", Pojo.class);
-        for (int i = 0; i < listPhone.size(); i++) {
-            System.out.println(listPhone.get(i));
-        }
-        return listPhone;
-        //System.out.print(listPhone);
-
+        System.out.println(listPhone);
+        return listPhone.get();
     }
 
 }

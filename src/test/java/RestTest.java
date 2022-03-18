@@ -12,8 +12,8 @@ public class RestTest extends BaseTest {
 
     }
 
-    @Test(description = "Пользователь создает нового кастомера")
-    public void checkCustomer() {steps.postCustomer(token);}
+/*    @Test(description = "Пользователь создает нового кастомера")
+    public void checkCustomer() {steps.postCustomer(token);}*/
 
   //  @Test(description = "Поиск кастомера по ID")
     //public void checkCustomerById() {steps.getCustomerById(token);}
