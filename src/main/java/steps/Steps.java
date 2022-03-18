@@ -1,20 +1,18 @@
 package steps;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import pojos.Pojo;
 import service.Specification;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
 import static service.BaseTest.token;
+
 
 public class Steps {
 
@@ -41,6 +39,23 @@ public class Steps {
                 .extract().path("token");
     }
 
+    //  @Step("Получение списка свободных номеров  ")
+    //public List<Pojo> getEmptyPhone(String token) {
+    //Response response = getEmptyPhone();
+    //int statusCode = 200;
+    // List<Pojo> phone =
+    //given()
+    //  .spec(Specification.REQ_SPEC)
+    // .header("authToken", token)
+    //  .when()
+    //   .get("/simcards/getEmptyPhone")
+    //   .then()
+    //  .contentType(ContentType.JSON)
+    // .log().all()
+    //.extract().jsonPath().getList("phones", Pojo.class);
+    //return phone;
+    //System.out.print(phone.);
+//}
 
     @Step("Получение списка свободных номеров  ")
     public Response getEmptyPhone(String token) {
@@ -53,22 +68,29 @@ public class Steps {
                 .contentType(ContentType.JSON)
                 .log().all()
                 .extract().response();
-
     }
+
 
     @Step("Создание нового Кастомера ")
-    public String postCustomer(String token) {
-        return given()
-                .spec(Specification.REQ_SPEC)
-                .body("{\"name\":\"123\", \"phone\":79282184620, \"additionalParameters\":{\"string\": \"string\"} }")
-                .header("authToken", token)
-                .when()
-                .post("/customer/postCustomer")
-                .then()
-                .log().all()
-                .extract().path("id");
+    public String postCustomer(String token, List<Pojo> phone) {
+        for (int i = 0; i < phone.size(); i++) {
+            Response response = given()
+                    .spec(Specification.REQ_SPEC)
+                    .body("{\"name\":\"123\", \"phone\":" + phone.get(i) + ", \"additionalParameters\":{\"string\": \"string\"} }")
+                    .header("authToken", token)
+                    .when()
+                    .post("/customer/postCustomer")
+                    .then()
+                    .log().all()
+                    .extract().response();
+            if (response.statusCode() == 200) {
+                return response.path("id");
+            }
+        }
+        return null;
     }
 
+/*
     @Step("Поиск по Кастомера ID")
     public void getCustomerById(String token) {
         given()
@@ -79,7 +101,6 @@ public class Steps {
                 .get("/customer/getCustomerById")
                 .then()
                 .log().all();
-
     }
 
     @Step("Изменеие Статуса Кастомера  ")
@@ -97,25 +118,13 @@ public class Steps {
                 .log().all();
 
     }
+*/
 
     @Step
-    public void retry() throws JsonProcessingException {
+    public List<Pojo> retry() {
         Response response = getEmptyPhone(token);
-        String jsonAsString;
-        jsonAsString = response.asString();
         int statusCode = response.statusCode();
-        //ArrayList<String> jsonAsCollection = new ArrayList(Arrays.asList(response.body()));
-        ArrayList<String> jsonAsCollection = new ArrayList<>();
-        System.out.print(jsonAsCollection);
-
-        String json = "[{\"id\":1,\"name\":\"Иван\"},{\"id\":2,\"name\":\"Фёдор\"}]";
-        ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> list = mapper.readValue(json, List.class);
-
-        System.out.println(list); // [{id=1, name=Иван}, {id=2, name=Фёдор}]
-
-
-        await("Подождите пока массив будет не пустой").atMost(300, TimeUnit.MILLISECONDS)
+        await("Подождите пока массив будет не пустой").atMost(500, TimeUnit.MILLISECONDS)
                 .until(() -> {
                     if (statusCode != 200) {
                         //isResult = false;
@@ -130,7 +139,13 @@ public class Steps {
                     }
                     return true;
                 });
-        System.out.print("Тест закончен");
+        List<Pojo> listPhone = response.jsonPath().getList("phones", Pojo.class);
+        for (int i = 0; i < listPhone.size(); i++) {
+            System.out.println(listPhone.get(i));
+        }
+        return listPhone;
+        //System.out.print(listPhone);
 
     }
+
 }
