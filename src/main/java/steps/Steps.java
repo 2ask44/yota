@@ -3,12 +3,15 @@ package steps;
 import api.Api;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.testng.Assert;
 import pojos.Pojo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
 import static org.awaitility.Awaitility.await;
 
 
@@ -38,15 +41,37 @@ public class Steps {
         return phonesList.get();
     }
 
-    @Step("Создание нового Кастомера  по номеру и проверку на свободность")
+    @Step("Создание нового Кастомера  по номеру и проверку на свободность {phonesList}")
     public void phonesListValidation(List<String> phonesList) {
         for (String phone : phonesList) {
             if (api.postCustomer(phone).isEmpty()) {
-                System.out.print(" ТЕСТ УПАЛ");
-                return;
+                Assert.fail("В списке номеров имеются номера, который занят");
             }
         }
-
-        System.out.print("Заебись");
+        //System.out.print("ТЕСТ ПРОШЕЛ, ВЕСЬ СПИСОК НОМЕРОВ КОРРЕКТНЫЙ");
     }
+
+    @Step("Создание нового Кастомера, и получение списка phoneIdsList")
+    public List<String> phoneIdsList(List<String> phonesList) {
+        List<String> phoneIdsList = new ArrayList<>();
+        for (String phone : phonesList) {
+            String id = api.postCustomer(phone);
+            if (id.isEmpty()) {
+                //System.out.print("Шаг далее");
+            } else {
+                phoneIdsList.add(id);
+            }
+        }
+        if (phoneIdsList.size() < 0) {
+            //System.out.println("свободных номеров не имеется");
+            Assert.fail("свободных номеров не имеется");
+        } else {
+            }
+        return phoneIdsList;
+    }
+    @Step("Получение токена по логину и паролю")
+    public void getCustomerById() {
+        api.getCustomerById();
+    }
+
 }

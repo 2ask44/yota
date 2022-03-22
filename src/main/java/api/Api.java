@@ -48,12 +48,12 @@ public class Api {
                 .when()
                 .post("/customer/postCustomer")
                 .then()
-                //.log().all()
+                .log().all()
                 .extract().response();
         if (response.statusCode() == 200) {
             return response.path("id");
         } else {
-            System.out.print("Хуевый номер " + phone);
+            //System.out.print("Номер занят " + phone);
             return "";
         }
     }
@@ -77,10 +77,7 @@ public class Api {
 //}
 
 
-
-/*
-    @Step("Поиск по Кастомера ID")
-    public void getCustomerById(String token) {
+    public void getCustomerById() {
         given()
                 .spec(Specification.REQ_SPEC)
                 .param("customerId", postCustomer(token))
@@ -90,7 +87,7 @@ public class Api {
                 .then()
                 .log().all();
     }
-
+/*
     @Step("Изменеие Статуса Кастомера  ")
     public void changeCustomerStatus(String token) {
         String customerId = postCustomer(token);
