@@ -2,6 +2,7 @@ package api;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import pojos.Pojo;
 import service.Specification;
 
 import static io.restassured.RestAssured.given;
@@ -58,50 +59,59 @@ public class Api {
         }
     }
 
-    //  @Step("Получение списка свободных номеров  ")
-    //public List<Pojo> getEmptyPhone(String token) {
-    //Response response = getEmptyPhone();
-    //int statusCode = 200;
-    // List<Pojo> phone =
-    //given()
-    //  .spec(Specification.REQ_SPEC)
-    // .header("authToken", token)
-    //  .when()
-    //   .get("/simcards/getEmptyPhone")
-    //   .then()
-    //  .contentType(ContentType.JSON)
-    // .log().all()
-    //.extract().jsonPath().getList("phones", Pojo.class);
-    //return phone;
-    //System.out.print(phone.);
-//}
-
-
-    public void getCustomerById() {
-        given()
+    public Response getCustomerById(String customerId) {
+        return given()
                 .spec(Specification.REQ_SPEC)
-                .param("customerId", postCustomer(token))
+                .param("customerId", customerId)
                 .header("authToken", token)
                 .when()
                 .get("/customer/getCustomerById")
                 .then()
-                .log().all();
+                .log().all().extract().response();
+
     }
-/*
-    @Step("Изменеие Статуса Кастомера  ")
-    public void changeCustomerStatus(String token) {
-        String customerId = postCustomer(token);
+    /*
+        public void getCustomerById(String customerId) {
+            given()
+                    .spec(Specification.REQ_SPEC)
+                    .param("customerId", customerId)
+                    .header("authToken", token)
+                    .when()
+                    .get("/customer/getCustomerById")
+                    .then()
+                    .log().all().extract().as(Pojo.class);
+        }
+      */
+
+        /*
+            @Step("Изменеие Статуса Кастомера  ")
+            public void changeCustomerStatus(String token) {
+                String customerId = postCustomer(token);
+                given()
+                        .spec(Specification.REQ_SPEC)
+                        .body("{\n" +
+                                "    \"status\": \"Yes\"\n" +
+                                "}")
+                        .header("authToken", token)
+                        .when()
+                        .post("customer/" + customerId + "/changeCustomerStatus")
+                        .then()
+                        .log().all();
+
+            }
+        */
+    //@Step("Поиск кастомера по номеру телефона ")
+    public void findByPhoneNumber(long phone) {
         given()
                 .spec(Specification.REQ_SPEC)
-                .body("{\n" +
-                        "    \"status\": \"Yes\"\n" +
-                        "}")
+                .body("{\"name\":\"123\", \"phone\":" + phone + ", \"additionalParameters\":{\"string\": \"string\"} }")
                 .header("authToken", token)
                 .when()
-                .post("customer/" + customerId + "/changeCustomerStatus")
+                .post("/customer/findByPhoneNumber")
                 .then()
                 .log().all();
 
     }
-*/
+
+
 }
