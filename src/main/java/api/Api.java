@@ -100,15 +100,23 @@ public class Api {
             }
         */
     //@Step("Поиск кастомера по номеру телефона ")
-    public void findByPhoneNumber(long phone) {
-        given()
-                .spec(Specification.REQ_SPEC)
-                .body("{\"name\":\"123\", \"phone\":" + phone + ", \"additionalParameters\":{\"string\": \"string\"} }")
+    public Response findByPhoneNumber(long phone) {
+       return  given()
+                .spec(Specification.REQ_SPECXML)
+                .body("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                        "<ns3:Envelope xmlns:ns2=\"soap\" xmlns:ns3=\"http://schemas.xmlsoap.org/soap/envelope\">\n" +
+                        "<ns2:Header>\n" +
+                        "<authToken>"+token+"</authToken>\n" +
+                        "</ns2:Header>\n" +
+                        "<ns2:Body>\n" +
+                        "<phoneNumber>"+phone+"</phoneNumber>\n" +
+                        "</ns2:Body>\n" +
+                        "</ns3:Envelope>")
                 .header("authToken", token)
                 .when()
                 .post("/customer/findByPhoneNumber")
                 .then()
-                .log().all();
+                .log().all().extract().response();
 
     }
 

@@ -8,6 +8,7 @@ import pojos.PhoneAndIdPojo;
 import pojos.Pojo;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -19,12 +20,12 @@ public class Steps {
 
     Api api = new Api();
 
-    @Step("Получение токена по логину и паролю")
+    @Step("Шаг1.Получение токена по логину и паролю")
     public void login() {
         api.login();
     }
 
-    @Step("Получение списка свободных номеров")
+    @Step("Шаг2.Получение списка свободных номеров")
     public List<String> getPhonesList() {
         AtomicReference<List<String>> phonesList = new AtomicReference<>();
         await("Подождите пока массив будет не пустой").atMost(5000, TimeUnit.MILLISECONDS)
@@ -41,7 +42,7 @@ public class Steps {
         return phonesList.get();
     }
 
-    @Step("Создание нового Кастомера по номеру и проверку на свободность из следующих номеров {phonesList}")
+    @Step("Шаг 3.Проверка списка номеров {phonesList} на свободность,  ")
     public void phonesListValidation(List<String> phonesList) {
         for (String phone : phonesList) {
 /*            if (api.postCustomer(phone).isEmpty()) {
@@ -82,9 +83,11 @@ public class Steps {
             if (id.isEmpty()) {
                 //System.out.print("Шаг далее");
             } else {
-                phoneIdsList.add(id);
-                pojo.id=id;
-                pojo.phone= Long.parseLong(phone);
+               // phoneIdsList.add(id);
+               // pojo.id=id;
+               // pojo.phone= Long.parseLong(phone);
+                pojo.setId(id);
+                pojo.setPhone(Long.parseLong(phone));
             }
         }
         if (phoneIdsList.size() < 0 ) {
@@ -95,13 +98,13 @@ public class Steps {
         return pojo;
     }*/
 
-    @Step
-    public PhoneAndIdPojo postCustomer(List<String> phonesList){
-        for (int i = 0; i <= phonesList.size()-1; i++) {
+    @Step("Шаг 4.Получение кастомера (с сохраннием номера и Id в объект)")
+    public PhoneAndIdPojo postCustomer(List<String> phonesList) {
+        for (int i = 0; i <= phonesList.size() - 1; i++) {
             Response response = api.postCustomer(phonesList.get(i));
             if (response.statusCode() == 200) {
                 PhoneAndIdPojo phoneAndIdPojo = new PhoneAndIdPojo();
-                phoneAndIdPojo.setPhone(phonesList.get(i));
+                phoneAndIdPojo.setPhone(Long.parseLong(phonesList.get(i)));
                 phoneAndIdPojo.setId(response.path("id"));
                 return phoneAndIdPojo;
             }
@@ -110,7 +113,7 @@ public class Steps {
         return null;
     }
 
-    @Step("Получение кастомера по ID, с ожиданием status=ACTIVE")
+    @Step("Шаг 5. Получение кастомера по ID, с ожиданием status=ACTIVE")
     public void getCustomerById(String Id) {
         with().pollInterval(5000, TimeUnit.MILLISECONDS)
                 .await("Подождите пока status не измениться на ACTIVE, " +
@@ -121,6 +124,20 @@ public class Steps {
                     return response.body().path("return.status").equals("ACTIVE") &&
                             "string".equals(response.body().path("return.additionalParameters.string"));
                 });
-
     }
+
+    @Step("Шаг 6. Поиск Кастомера по номеру телефона")
+    public void getCustomerByPhone(PhoneAndIdPojo phoneAndIdPojo) {
+        Response response = api.findByPhoneNumber(phoneAndIdPojo.getPhone());
+        String idOut = response.body().xmlPath().get("Envelope.Body.customerId");
+        String idOld = phoneAndIdPojo.getId();
+        //String idOld = "8cb41819-ac7a-48ac-8620-1d8463d31d20";
+        //Assert.assertTrue(idOut.contains(idOld));
+        //Assert.assertEquals(idOld,idOut);
+        if (idOut.equals(idOld)==false)
+        {
+            Assert.fail("ID получен от другого номера");
+        }
+         }
+
 }

@@ -15,6 +15,12 @@ public class Specification {
             .addFilter(new AllureRestAssured())
             .build();
 
+    public static RequestSpecification REQ_SPECXML = new RequestSpecBuilder()
+            .setBaseUri("http://10.254.7.187:8090")
+            .setContentType(ContentType.XML)
+            .addFilter(new AllureRestAssured())
+            .build();
+
     public static ResponseSpecification RES_SPEC = new ResponseSpecBuilder()
             .expectStatusCode(200)
             .build();
