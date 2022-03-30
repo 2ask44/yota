@@ -1,6 +1,7 @@
 import io.qameta.allure.Story;
 import org.junit.jupiter.api.DisplayName;
 import org.testng.annotations.Test;
+import pojos.PhoneAndIdPojo;
 import pojos.Pojo;
 import service.BaseTest;
 
@@ -20,44 +21,46 @@ public class RestTest extends BaseTest {
         List<String> phonesList = steps.getPhonesList();
         steps.phonesListValidation(phonesList);
     }
-/*
-    @Test(description = "Тест №3 - Получение списка phoneIdsList свободных комеров")
-    @Story("ТЕСТЫ API YOTA")
-    public void createCustomer() {
-        List<String> phonesList = steps.getPhonesList();
-        List<String>listId=steps.phoneIdsList(phonesList);
-        System.out.println("Полученные ID:" + listId);
-    }
-*/
+
+    /*
+        @Test(description = "Тест №3 - Получение списка phoneIdsList свободных комеров")
+        @Story("ТЕСТЫ API YOTA")
+        public void createCustomer() {
+            List<String> phonesList = steps.getPhonesList();
+            List<String>listId=steps.phoneIdsList(phonesList);
+            System.out.println("Полученные ID:" + listId);
+        }
+    */
     @Test(description = "Тест №3 - Получение списка phoneIdsList свободных комеров")
     @Story("ТЕСТЫ API YOTA")
     public void createCustomer() {
         List<String> phonesList = steps.getPhonesList();
         Pojo phoneAndID = new Pojo();
-        phoneAndID=steps.phoneIdsList(phonesList);
-        System.out.println("Полученные Phone и ID:" + phoneAndID.phone + " " + " " +phoneAndID.id);
+ //       phoneAndID = steps.phoneIdsList(phonesList);
+        System.out.println("Полученные Phone и ID:" + phoneAndID.phone + " " + " " + phoneAndID.id);
     }
 
     @Test(description = "Тест №4 - Получить кастомера по ID")
     @Story("ТЕСТЫ API YOTA")
     public void checkCustomerById() {
-    List<String> phonesList = steps.getPhonesList();
-    Pojo phoneAndID=new Pojo();
-    phoneAndID=steps.phoneIdsList(phonesList);
+        PhoneAndIdPojo neew =steps.postCustomer(steps.getPhonesList());
+        System.out.println(neew.getPhone() + "  "+ neew.getId());/*Pojo phoneAndID=new Pojo();
+    phoneAndID=steps.phoneIdsList(steps.getPhonesList());
     String listId=phoneAndID.id;
-    steps.getCustomerById(listId);}
+    steps.getCustomerById();}*/
 
-   //  @Test(description = "Тест №4 - Получить кастомера по ID")
-   //  @Story("ТЕСТЫ API YOTA")
-   // public void checkCustomerById() {
+        //  @Test(description = "Тест №4 - Получить кастомера по ID")
+        //  @Story("ТЕСТЫ API YOTA")
+        // public void checkCustomerById() {
         // List<String> phonesList = steps.getPhonesList();
         // List<String>listId=steps.phoneIdsList(phonesList);
-       //
-    // steps.getCustomerById(listId);}
+        //
+        // steps.getCustomerById(listId);}
 
-    //@Test(description="Изменеие статуса кастомера ")
-    //public void ChangeCustomerStatus() {steps.changeCustomerStatus(token);}
+        //@Test(description="Изменеие статуса кастомера ")
+        //public void ChangeCustomerStatus() {steps.changeCustomerStatus(token);}
 
 
+    }
 }
 

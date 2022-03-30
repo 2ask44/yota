@@ -4,12 +4,11 @@ import api.Api;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.testng.Assert;
+import pojos.PhoneAndIdPojo;
 import pojos.Pojo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ import static org.awaitility.Awaitility.with;
 
 public class Steps {
 
-    private Api api = new Api();
+    Api api = new Api();
 
     @Step("Получение токена по логину и паролю")
     public void login() {
@@ -45,9 +44,9 @@ public class Steps {
     @Step("Создание нового Кастомера по номеру и проверку на свободность из следующих номеров {phonesList}")
     public void phonesListValidation(List<String> phonesList) {
         for (String phone : phonesList) {
-            if (api.postCustomer(phone).isEmpty()) {
+/*            if (api.postCustomer(phone).isEmpty()) {
                 Assert.fail("В списке номеров имеется хотя бы один номер, который точно занят");
-            }
+            }*/
         }
         //System.out.print("ТЕСТ ПРОШЕЛ, ВЕСЬ СПИСОК НОМЕРОВ КОРРЕКТНЫЙ");
     }
@@ -73,7 +72,7 @@ public class Steps {
         return phoneIdsList;
     }
 */
-    @Step("Создание нового Кастомера, и получение списка c ID: phoneIdsList")
+  /*  @Step("Создание нового Кастомера, и получение списка c ID: phoneIdsList")
     public Pojo phoneIdsList(List<String> phonesList) {
         List<String> phoneIdsList = new ArrayList<>();
         Pojo pojo =new Pojo();
@@ -94,23 +93,33 @@ public class Steps {
         } else {
         }
         return pojo;
+    }*/
+
+    @Step
+    public PhoneAndIdPojo postCustomer(List<String> phonesList){
+        for (int i = 0; i <= phonesList.size()-1; i++) {
+            Response response = api.postCustomer(phonesList.get(i));
+            if (response.statusCode() == 200) {
+                PhoneAndIdPojo phoneAndIdPojo = new PhoneAndIdPojo();
+                phoneAndIdPojo.setPhone(phonesList.get(i));
+                phoneAndIdPojo.setId(response.path("id"));
+                return phoneAndIdPojo;
+            }
+        }
+        Assert.fail("свободных номеров не имеется");
+        return null;
     }
 
     @Step("Получение кастомера по ID, с ожиданием status=ACTIVE")
-    public void getCustomerById(String listId) {
-
+    public void getCustomerById(String Id) {
         with().pollInterval(5000, TimeUnit.MILLISECONDS)
                 .await("Подождите пока status не измениться на ACTIVE, " +
                         "в течение 2 минут, с частотой запроса 5000 мил.сек.")
                 .atMost(2, TimeUnit.MINUTES)
                 .until(() -> {
-                    String customerId = listId;
-                    Response response = api.getCustomerById(customerId);
-                    String status = response.body().path("return.status");
-                    String additionalParameters = "string";
-                    String additionalParametersOut = response.body().path("return.additionalParameters.string");
-                    boolean success = (status.equals("ACTIVE") && additionalParameters.equals(additionalParametersOut));
-                    return success;
+                    Response response = api.getCustomerById(Id);
+                    return response.body().path("return.status").equals("ACTIVE") &&
+                            "string".equals(response.body().path("return.additionalParameters.string"));
                 });
 
     }

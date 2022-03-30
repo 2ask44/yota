@@ -5,6 +5,11 @@ import io.restassured.response.Response;
 import pojos.Pojo;
 import service.Specification;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static io.restassured.RestAssured.given;
 
 public class Api {
@@ -41,8 +46,8 @@ public class Api {
                 .extract().response();
     }
 
-    public String postCustomer(String phone) {
-        Response response = given()
+    public Response postCustomer(String phone) {
+        return  given()
                 .spec(Specification.REQ_SPEC)
                 .body("{\"name\":\"123\", \"phone\":" + phone + ", \"additionalParameters\":{\"string\": \"string\"} }")
                 .header("authToken", token)
@@ -51,12 +56,6 @@ public class Api {
                 .then()
                 .log().all()
                 .extract().response();
-        if (response.statusCode() == 200) {
-            return response.path("id");
-        } else {
-            //System.out.print("Номер занят " + phone);
-            return "";
-        }
     }
 
     public Response getCustomerById(String customerId) {
