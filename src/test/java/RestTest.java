@@ -34,7 +34,6 @@ public class RestTest extends BaseTest {
         List<String> phonesList = steps.getPhonesList();
         String id = steps.postCustomer(phonesList).getId();
         steps.getCustomerById(id);
-
     }
 
     @Test(description = "Тест №5 - Поиск кастомера по Phone")
@@ -43,6 +42,13 @@ public class RestTest extends BaseTest {
         steps.getCustomerByPhone(steps.postCustomer(steps.getPhonesList()));
     }
 
+    @Test(description = "Тест №6 -  Измениние статуса кастомера по ID")
+    @Story("ТЕСТЫ API YOTA")
+    public void checkCustomerStatus() {
+        List<String> phonesList = steps.getPhonesList();
+        String id = steps.postCustomer(phonesList).getId();
+        steps.checkCustomerStatus(id);
+    }
 
 }
 

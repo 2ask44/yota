@@ -47,7 +47,7 @@ public class Api {
     }
 
     public Response postCustomer(String phone) {
-        return  given()
+        return given()
                 .spec(Specification.REQ_SPEC)
                 .body("{\"name\":\"123\", \"phone\":" + phone + ", \"additionalParameters\":{\"string\": \"string\"} }")
                 .header("authToken", token)
@@ -69,47 +69,32 @@ public class Api {
                 .log().all().extract().response();
 
     }
-    /*
-        public void getCustomerById(String customerId) {
-            given()
-                    .spec(Specification.REQ_SPEC)
-                    .param("customerId", customerId)
-                    .header("authToken", token)
-                    .when()
-                    .get("/customer/getCustomerById")
-                    .then()
-                    .log().all().extract().as(Pojo.class);
-        }
-      */
 
-        /*
-            @Step("Изменеие Статуса Кастомера  ")
-            public void changeCustomerStatus(String token) {
-                String customerId = postCustomer(token);
-                given()
-                        .spec(Specification.REQ_SPEC)
-                        .body("{\n" +
-                                "    \"status\": \"Yes\"\n" +
-                                "}")
-                        .header("authToken", token)
-                        .when()
-                        .post("customer/" + customerId + "/changeCustomerStatus")
-                        .then()
-                        .log().all();
+    public Response changeCustomerStatus(String customerId) {
+        return given()
+                .spec(Specification.REQ_SPEC)
+                .body("{\n" +
+                        "    \"status\": \"Yes\"\n" +
+                        "}")
+                .header("authToken", token)
+                .when()
+                .post("customer/" + customerId + "/changeCustomerStatus")
+                .then()
+                .log().all().extract().response();
 
-            }
-        */
-    //@Step("Поиск кастомера по номеру телефона ")
+    }
+
+
     public Response findByPhoneNumber(long phone) {
-       return  given()
+        return given()
                 .spec(Specification.REQ_SPECXML)
                 .body("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                         "<ns3:Envelope xmlns:ns2=\"soap\" xmlns:ns3=\"http://schemas.xmlsoap.org/soap/envelope\">\n" +
                         "<ns2:Header>\n" +
-                        "<authToken>"+token+"</authToken>\n" +
+                        "<authToken>" + token + "</authToken>\n" +
                         "</ns2:Header>\n" +
                         "<ns2:Body>\n" +
-                        "<phoneNumber>"+phone+"</phoneNumber>\n" +
+                        "<phoneNumber>" + phone + "</phoneNumber>\n" +
                         "</ns2:Body>\n" +
                         "</ns3:Envelope>")
                 .header("authToken", token)

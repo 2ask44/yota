@@ -66,6 +66,15 @@
             <artifactId>awaitility</artifactId>
             <version>4.2.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+
+
         <dependency>
             <groupId>net.hamnaberg.json</groupId>
             <artifactId>immutable-json-gson</artifactId>
