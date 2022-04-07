@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static io.restassured.RestAssured.given;
 
 public class Api {
@@ -55,6 +56,7 @@ public class Api {
                 .post("/customer/postCustomer")
                 .then()
                 .log().all()
+                //.body(matchesJsonSchemaInClasspath("idResponseSchema.json"))
                 .extract().response();
     }
 

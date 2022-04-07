@@ -2,6 +2,8 @@ package steps;
 
 import api.Api;
 import io.qameta.allure.Step;
+import io.restassured.path.json.JsonPath;
+import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import org.testng.Assert;
 import pojos.PhoneAndIdPojo;
@@ -13,8 +15,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
+
 
 
 import static org.awaitility.Awaitility.await;
@@ -60,7 +64,7 @@ public class Steps {
     public PhoneAndIdPojo postCustomer(List<String> phonesList) {
         for (int i = 0; i <= phonesList.size() - 1; i++) {
             Response response = api.postCustomer(phonesList.get(i));
-            if (response.statusCode() == 200) {
+          if (response.statusCode() == 200 )  {
                 PhoneAndIdPojo phoneAndIdPojo = new PhoneAndIdPojo();
                 phoneAndIdPojo.setPhone(Long.parseLong(phonesList.get(i)));
                 phoneAndIdPojo.setId(response.path("id"));
@@ -87,19 +91,30 @@ public class Steps {
     @Step("Поиск Кастомера по номеру телефона")
     public void getCustomerByPhone(PhoneAndIdPojo phoneAndIdPojo) {
         Response response = api.findByPhoneNumber(phoneAndIdPojo.getPhone());
-        String idOut = response.body().xmlPath().get("Envelope.Body.customerId");
-        String idOld = phoneAndIdPojo.getId();
-        if (idOut.equals(idOld) == false) {
-            Assert.fail("ID получен от другого номера");
-        }
+        JsonPath jsonPath= response.jsonPath();
+        XmlPath xmlPath=response.xmlPath();
+        int i=0;
+        //String idOut = response.body().xmlPath().get("Envelope.Body.customerId");
+        //String idOld = phoneAndIdPojo.getId();
+        //if (idOut.equals(idOld) == false) {
+        //  Assert.fail("ID получен от другого номера");
+        //}
+        assertThat("Проверка совпадения ID", response.body().xmlPath()
+                .get("Envelope.Body.customerId"), equalTo(phoneAndIdPojo.getId()));
     }
 
 
     @Step("Получение")
     public void checkCustomerStatus(String id) {
         api.changeCustomerStatus(id);
-        assertThat("Проверка статуса",api.getCustomerById(id).body().path("return.status"), equalTo("Yes"));
+        //assertThat("Проверка статуса", api.getCustomerById(id).body()
+             //   .path("return.status"), equalTo("Yes"));
 
+        assertThat(api.getCustomerById(id).body()
+                .path("return.status"), hasItem("Yes"));
+
+
+        //        Assert.assertTrue(api.getCustomerById(id).body().path("return.status"));
         //  if (api.getCustomerById(id).body().path("return.status").equals("Yes")==false)
         //{
         //Assert.fail("Статусы не совпадают");
