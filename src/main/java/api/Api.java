@@ -11,7 +11,6 @@ public class Api {
     public String login(String login, String password) {
         return given()
                 .spec(Specification.REQ_SPEC)
-                //.contentType(ContentType.JSON)
                 .body("{ \"login\":\"" + login + "\",\"password\":\"" + password + "\"}")
                 .when()
                 .post("/login")
@@ -54,7 +53,6 @@ public class Api {
                 .get("/customer/getCustomerById")
                 .then()
                 .log().all().extract().response();
-
     }
 
     public Response changeCustomerStatus(String customerId, String token) {
@@ -66,7 +64,6 @@ public class Api {
                 .post("customer/" + customerId + "/changeCustomerStatus")
                 .then()
                 .log().all().extract().response();
-
     }
 
 

@@ -4,8 +4,8 @@ import api.Api;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.testng.Assert;
-import pojos.PhoneAndIdPojo;
-import pojos.Pojo;
+import pojos.PhoneAndIdPOJOResponse;
+import pojos.PhonePOJOResponse;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +34,7 @@ public class Steps {
                     Response response = api.getEmptyPhone(token);
                     boolean success = response.statusCode() == 200 && response.jsonPath().getList("phones").size() > 0;
                     if (success) {
-                        phonesList.set(response.body().jsonPath().getList("phones", Pojo.class)
+                        phonesList.set(response.body().jsonPath().getList("phones", PhonePOJOResponse.class)
                                 .stream().map(p -> Long.toString(p.getPhone())).collect(Collectors.toList()));
                     }
                     return success;
@@ -53,14 +53,14 @@ public class Steps {
     }
 
     @Step("Получение кастомера (с сохраннием номера и Id в объект)")
-    public PhoneAndIdPojo postCustomer(List<String> phonesList, String token) {
+    public PhoneAndIdPOJOResponse postCustomer(List<String> phonesList, String token) {
         for (int i = 0; i <= phonesList.size() - 1; i++) {
             Response response = api.postCustomer(phonesList.get(i), token);
             if (response.statusCode() == 200) {
-                PhoneAndIdPojo phoneAndIdPojo = new PhoneAndIdPojo();
-                phoneAndIdPojo.setPhone(Long.parseLong(phonesList.get(i)));
-                phoneAndIdPojo.setId(response.path("id"));
-                return phoneAndIdPojo;
+                PhoneAndIdPOJOResponse phoneAndIdPOJOResponse = new PhoneAndIdPOJOResponse();
+                phoneAndIdPOJOResponse.setPhone(Long.parseLong(phonesList.get(i)));
+                phoneAndIdPOJOResponse.setId(response.path("id"));
+                return phoneAndIdPOJOResponse;
             }
         }
         Assert.fail("Свободных номеров не имеется");
@@ -81,10 +81,10 @@ public class Steps {
     }
 
     @Step("Поиск Кастомера по номеру телефона")
-    public void getCustomerByPhone(PhoneAndIdPojo phoneAndIdPojo, String token) {
-        Response response = api.findByPhoneNumber(phoneAndIdPojo.getPhone(), token);
+    public void getCustomerByPhone(PhoneAndIdPOJOResponse phoneAndIdPOJOResponse, String token) {
+        Response response = api.findByPhoneNumber(phoneAndIdPOJOResponse.getPhone(), token);
         assertThat("Проверка совпадения ID", response.body().xmlPath()
-                .get("Envelope.Body.customerId"), equalTo(phoneAndIdPojo.getId()));
+                .get("Envelope.Body.customerId"), equalTo(phoneAndIdPOJOResponse.getId()));
     }
 
     @Step("Получение")
@@ -93,5 +93,4 @@ public class Steps {
         assertThat("Проверка статуса", api.getCustomerById(id, token).body()
                 .path("return.status"), equalTo("Yes"));
     }
-
 }

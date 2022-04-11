@@ -8,7 +8,6 @@ import steps.Steps;
 
 public class BaseTest {
 
-
     public Steps steps = new Steps();
     public static String tokenAdmin;
     public static String tokenUser;
