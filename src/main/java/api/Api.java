@@ -2,40 +2,26 @@ package api;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import pojos.Pojo;
 import service.Specification;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static io.restassured.RestAssured.given;
 
 public class Api {
 
-    private String token;
-
-    public void login() {
-        token = given()
-                //.baseUri("http://10.254.7.187:8090")
+    public String login(String login, String password) {
+        return given()
                 .spec(Specification.REQ_SPEC)
                 //.contentType(ContentType.JSON)
-                .body("{\n" +
-                        "    \"login\": \"admin\",\n" +
-                        "    \"password\": \"password\"\n" +
-                        "}")
+                .body("{ \"login\":\"" + login + "\",\"password\":\"" + password + "\"}")
                 .when()
                 .post("/login")
                 .then()
-                //.statusCode(200)
                 .spec(Specification.RES_SPEC)
                 .log().all()
                 .extract().path("token");
     }
 
-    public Response getEmptyPhone() {
+    public Response getEmptyPhone(String token) {
         return given()
                 .spec(Specification.REQ_SPEC)
                 .header("authToken", token)
@@ -47,7 +33,7 @@ public class Api {
                 .extract().response();
     }
 
-    public Response postCustomer(String phone) {
+    public Response postCustomer(String phone, String token) {
         return given()
                 .spec(Specification.REQ_SPEC)
                 .body("{\"name\":\"123\", \"phone\":" + phone + ", \"additionalParameters\":{\"string\": \"string\"} }")
@@ -56,11 +42,10 @@ public class Api {
                 .post("/customer/postCustomer")
                 .then()
                 .log().all()
-                //.body(matchesJsonSchemaInClasspath("idResponseSchema.json"))
                 .extract().response();
     }
 
-    public Response getCustomerById(String customerId) {
+    public Response getCustomerById(String customerId, String token) {
         return given()
                 .spec(Specification.REQ_SPEC)
                 .param("customerId", customerId)
@@ -72,12 +57,10 @@ public class Api {
 
     }
 
-    public Response changeCustomerStatus(String customerId) {
+    public Response changeCustomerStatus(String customerId, String token) {
         return given()
                 .spec(Specification.REQ_SPEC)
-                .body("{\n" +
-                        "    \"status\": \"Yes\"\n" +
-                        "}")
+                .body("{\n" + " \"status\": \"Yes\"\n" + "}")
                 .header("authToken", token)
                 .when()
                 .post("customer/" + customerId + "/changeCustomerStatus")
@@ -87,7 +70,7 @@ public class Api {
     }
 
 
-    public Response findByPhoneNumber(long phone) {
+    public Response findByPhoneNumber(long phone, String token) {
         return given()
                 .spec(Specification.REQ_SPECXML)
                 .body("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
@@ -104,8 +87,5 @@ public class Api {
                 .post("/customer/findByPhoneNumber")
                 .then()
                 .log().all().extract().response();
-
     }
-
-
 }

@@ -79,8 +79,6 @@
             <version>2.2</version>
         </dependency>
 
-
-
         <dependency>
             <groupId>net.hamnaberg.json</groupId>
             <artifactId>immutable-json-gson</artifactId>
@@ -92,6 +90,11 @@
             <artifactId>junit-jupiter</artifactId>
             <version>RELEASE</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-parser-combinators_2.12</artifactId>
+            <version>1.1.2</version>
         </dependency>
     </dependencies>
     <build>
